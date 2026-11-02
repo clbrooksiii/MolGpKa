@@ -1,6 +1,6 @@
 import torch
 from torch.nn import Parameter
-from torch_scatter import scatter_add
+#from torch_scatter import scatter_add
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.utils import add_remaining_self_loops
 
@@ -74,7 +74,11 @@ class GCNConv(MessagePassing):
             edge_index, edge_weight, fill_value, num_nodes)
 
         row, col = edge_index
-        deg = scatter_add(edge_weight, row, dim=0, dim_size=num_nodes)
+        #********CLB UPDATE to eliminate torch-scatter
+        deg = torch.zeros(num_nodes, dtype=edge_weight.dtype, device=edge_weight.device)
+        deg.scatter_reduce_(dim=0, index=row, src=edge_weight, reduce="sum", include_self=False)
+        #********CLB UPDATE to eliminate torch-scatter
+        #deg = scatter_add(edge_weight, row, dim=0, dim_size=num_nodes)
         deg_inv_sqrt = deg.pow(-0.5)
         deg_inv_sqrt[deg_inv_sqrt == float('inf')] = 0
 

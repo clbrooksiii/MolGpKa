@@ -8,6 +8,7 @@ from utils.gcn_conv import GCNConv
 from torch_geometric.nn import GATConv, GlobalAttention
 from torch_geometric.nn import global_add_pool, global_mean_pool
 from torch_geometric.data import DataLoader
+from torch_geometric.nn.aggr import AttentionalAggregation
 
 
 n_features = 29
@@ -27,7 +28,8 @@ class GCNNet(torch.nn.Module):
         self.conv5 = GCNConv(512, 1024, cached=False)
         self.bn5 = BatchNorm1d(1024)
 
-        self.att = GlobalAttention(Linear(hidden, 1))
+        #self.att = GlobalAttention(Linear(hidden, 1))
+        self.att = AttentionalAggregation(Linear(hidden, 1))
         self.fc2 = Linear(1024, 128)
         self.fc3 = Linear(128, 16)
         self.fc4 = Linear(16, 1)
